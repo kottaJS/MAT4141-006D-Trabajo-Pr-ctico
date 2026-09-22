@@ -1,0 +1,361 @@
+================================================================================
+GUÍA DE ESTUDIO LÍNEA POR LÍNEA - ÍTEM 1 (ANÁLISIS DESCRIPTIVO)
+Asignatura: Estadística Aplicada (MAT4141)
+Base: Matrículas Educación Superior Coquimbo 2021 (37.323 filas)
+================================================================================
+
+Compadre, este archivo es tu torpedo oficial para la defensa individual y la
+presentación. Léelo con calma. El código está hecho exactamente con las mismas
+funciones y mañas que usa el profe en los Laboratorios 0, 1, 2 y 3.
+Si te pregunta cualquier línea o cualquier concepto, aquí tienes qué hace
+y CÓMO DECÍRSELO EN PALABRAS SIMPLES Y CONFIADAS para sacar el 7.0 sin que
+nadie sospeche nada.
+
+================================================================================
+BLOQUE 0: CARGA DE DATOS Y TAMAÑO DE LA MUESTRA
+================================================================================
+
+CÓDIGO:
+    # Bibliotecas
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import os
+
+    # Creación de DataFrame (DF)
+    ruta = '05_MATRICULAS_ED_SUPERIOR_COQUIMBO_2021.xlsx'
+    if not os.path.exists(ruta):
+        ruta = 'data/05_MATRICULAS_ED_SUPERIOR_COQUIMBO_2021.xlsx'
+    if not os.path.exists(ruta):
+        ruta = '../data/05_MATRICULAS_ED_SUPERIOR_COQUIMBO_2021.xlsx'
+
+    df = pd.read_excel(ruta)
+    df.head(5)
+
+    # Tamaño de la muestra
+    muestra = df.shape[0]
+    muestra
+
+EXPLICACIÓN LÍNEA POR LÍNEA:
+- import pandas as pd:
+  Importamos la librería Pandas con el alias "pd" para manipular tablas de datos
+  (DataFrames).
+- import matplotlib.pyplot as plt:
+  Importamos el módulo pyplot de Matplotlib con el alias "plt" para construir los
+  gráficos.
+- import os y las condiciones if:
+  Es una verificación para que el archivo cargue sin error tanto si lo abres
+  desde la carpeta raíz, desde la subcarpeta notebooks, o directamente en Google
+  Colab.
+- df = pd.read_excel(ruta):
+  Lee el archivo Excel oficial de Coquimbo 2021 y lo guarda en la variable "df".
+- df.head(5):
+  Muestra las primeras 5 filas para revisar rápidamente las columnas de la base.
+- muestra = df.shape[0]:
+  df.shape entrega (filas, columnas). Al poner [0], saca solo el número de filas.
+  Lo guardamos en la variable "muestra" porque representa el tamaño total de
+  nuestra muestra (n = 37.323 estudiantes).
+
+CÓMO DECÍRSELO AL PROFE:
+"Profe, aquí cargamos las bibliotecas estándar que vimos en clases, leemos la
+base de datos en un DataFrame y obtenemos el tamaño total de la muestra con
+df.shape[0], que nos da exactamente 37.323 estudiantes matriculados en la
+región de Coquimbo."
+
+
+================================================================================
+BLOQUE 1: VARIABLE CUALITATIVA - TIPO DE INSTITUCIÓN
+================================================================================
+
+CÓDIGO:
+    # Frecuencia absoluta
+    cuenta_institucion = df.groupby('TIPO DE INSTITUCION').size()
+
+    # Creación de DF con frecuencias absolutas y relativas
+    tabla_institucion = pd.DataFrame({
+        'Frecuencia absoluta': cuenta_institucion,
+        'Frecuencia relativa (%)': round(cuenta_institucion / muestra * 100, 1)
+    })
+
+    # Ordenamos de mayor a menor y mostramos la tabla
+    tabla_institucion = tabla_institucion.sort_values('Frecuencia absoluta', ascending=False)
+    tabla_institucion
+
+EXPLICACIÓN LÍNEA POR LÍNEA:
+- cuenta_institucion = df.groupby('TIPO DE INSTITUCION').size():
+  Agrupa los datos por cada tipo de institución y cuenta cuántos estudiantes hay
+  en cada una (Frecuencia Absoluta, fi).
+- tabla_institucion = pd.DataFrame({...}):
+  Crea una tabla bonita de dos columnas:
+  1) 'Frecuencia absoluta': el conteo de alumnos.
+  2) 'Frecuencia relativa (%)': divide el conteo por la muestra total (37.323),
+     multiplica por 100 para que sea porcentaje, y le aplica round(..., 1) para
+     dejarlo con un solo decimal.
+- .sort_values('Frecuencia absoluta', ascending=False):
+  Ordena la tabla de mayor a menor para ver cuál institución tiene más alumnos.
+
+GRÁFICO DE BARRAS DE INSTITUCIÓN:
+    # Variables
+    categorias_inst = tabla_institucion.index
+    f_inst = tabla_institucion['Frecuencia absoluta']
+
+    # Gráfico
+    fig, ax = plt.subplots(figsize=(8, 5))
+    barras_inst = ax.bar(categorias_inst, f_inst, color='steelblue', edgecolor='black')
+
+    # Personalización
+    ax.set_title('Distribución de estudiantes por tipo de institución')
+    ax.set_xlabel('Tipo de institución')
+    ax.set_ylabel('Cantidad de estudiantes')
+    ax.bar_label(barras_inst)
+    plt.xticks(rotation=45, ha='right')
+
+    plt.show()
+
+EXPLICACIÓN LÍNEA POR LÍNEA DEL GRÁFICO:
+- categorias_inst = tabla_institucion.index:
+  Saca los nombres de las instituciones (eje X).
+- f_inst = tabla_institucion['Frecuencia absoluta']:
+  Saca la cantidad de estudiantes (altura de las barras, eje Y).
+- fig, ax = plt.subplots(figsize=(8, 5)):
+  Crea la figura y el eje usando el enfoque orientado a objetos de Matplotlib,
+  con un tamaño de 8 pulgadas de ancho por 5 de alto.
+- ax.bar(..., color='steelblue', edgecolor='black'):
+  Dibuja las barras de color azul acero con borde negro.
+- ax.set_title(), ax.set_xlabel(), ax.set_ylabel():
+  Colocan el título y las etiquetas a los ejes.
+- ax.bar_label(barras_inst):
+  FUNCIÓN CLAVE: Escribe automáticamente el valor numérico arriba de cada barra,
+  para que el lector sepa el dato exacto sin tener que tantear en el eje Y.
+- plt.xticks(rotation=45, ha='right'):
+  Gira las etiquetas del eje X a 45 grados y las alinea a la derecha ("right")
+  para que los nombres no se sobrepongan entre sí.
+
+INTERPRETACIÓN CLAVE:
+"Las Universidades CRUCH lideran con 10.303 estudiantes (27,6%), seguidas muy
+de cerca por los Institutos Profesionales con 10.179 (27,3%). Si sumamos CFT e IP,
+el subsistema técnico-profesional representa exactamente el 50% de la matrícula,
+mostrando la fuerte vocación técnica de la región."
+
+
+================================================================================
+BLOQUE 2: VARIABLE CUALITATIVA - GÉNERO (GRÁFICO CIRCULAR)
+================================================================================
+
+CÓDIGO:
+    # Frecuencia absoluta
+    cuenta_genero = df.groupby('GENERO').size()
+
+    # Creación de DF con frecuencias absolutas y relativas
+    tabla_genero = pd.DataFrame({
+        'Frecuencia absoluta': cuenta_genero,
+        'Frecuencia relativa (%)': round(cuenta_genero / muestra * 100, 1)
+    })
+    tabla_genero
+
+    # Variables
+    categorias_gen = tabla_genero.index
+    h_gen = tabla_genero['Frecuencia relativa (%)']
+
+    # Gráfico
+    fig, ax = plt.subplots(figsize=(6, 5))
+    circular_gen = ax.pie(h_gen, labels=categorias_gen, autopct='%.1f%%', colors=['lightcoral', 'cornflowerblue'])
+
+    # Personalización
+    ax.set_title('Distribución porcentual de estudiantes por género')
+
+    plt.show()
+
+EXPLICACIÓN LÍNEA POR LÍNEA:
+- autopct='%.1f%%':
+  Le dice al gráfico circular que escriba el porcentaje con un decimal adentro
+  de cada pedazo del gráfico.
+- colors=['lightcoral', 'cornflowerblue']:
+  Colores suaves para diferenciar mujeres y hombres.
+
+SI EL PROFE PREGUNTA: ¿Por qué usaron gráfico circular acá y de barras antes?
+RESPUESTA DEL 7.0:
+"Profe, porque el gráfico circular se recomienda cuando tenemos pocas categorías
+(en este caso 2: Femenino y Masculino) y queremos mostrar la partición de un
+100%. Para Tipo de Institución usamos barras porque eran más categorías y con
+nombres más largos, donde las barras permiten comparar alturas mucho mejor."
+
+DATO CLAVE:
+"Hay 20.549 mujeres (55,1%) contra 16.774 hombres (44,9%). Las mujeres superan a
+los hombres por 10,2 puntos porcentuales en Coquimbo."
+
+
+================================================================================
+BLOQUE 3: TABLA BIVARIADA (CRUZADA) - INSTITUCIÓN VS GÉNERO
+================================================================================
+
+CÓDIGO:
+    # Tabla cruzada de frecuencias absolutas
+    tabla_cruzada = pd.crosstab(df['TIPO DE INSTITUCION'], df['GENERO'])
+    tabla_cruzada
+
+    # Tabla cruzada en porcentaje por fila (proporción dentro de cada institución)
+    tabla_cruzada_pct = round(pd.crosstab(df['TIPO DE INSTITUCION'], df['GENERO'], normalize='index') * 100, 1)
+    tabla_cruzada_pct
+
+EXPLICACIÓN:
+- pd.crosstab():
+  Construye una tabla de contingencia de doble entrada. En las filas pone el Tipo
+  de Institución y en las columnas el Género.
+- normalize='index':
+  Normaliza por filas, es decir, calcula qué porcentaje de alumnos de cada
+  institución son hombres y qué porcentaje son mujeres (cada fila suma 100%).
+
+SI EL PROFE PREGUNTA: ¿Qué descubrieron en esta tabla cruzada?
+RESPUESTA DEL 7.0:
+"Profe, descubrimos dos cosas muy interesantes:
+1) En las Universidades Privadas y los IP la presencia de mujeres es altísima
+   (supera el 61%).
+2) En cambio, en los Centros de Formación Técnica (CFT) es el único lugar donde
+   ganan los hombres, con un 53,5%. Esto tiene mucho sentido en la región de
+   Coquimbo por las carreras técnicas industriales, de minería y maquinaria que
+   históricamente atraen más varones."
+
+
+================================================================================
+BLOQUE 4: VARIABLE CUANTITATIVA - EDAD (INTERVALOS Y ESTADÍGRAFOS)
+================================================================================
+
+CÓDIGO:
+    # Intervalos de edad
+    df['Intervalos_edad'] = pd.cut(df['EDAD'], bins=10, include_lowest=True, precision=0)
+
+    # Frecuencia absoluta usando observed=True
+    cuenta_edad = df.groupby('Intervalos_edad', observed=True).size()
+
+    # Tabla con las 4 frecuencias
+    tabla_edad = pd.DataFrame({
+        'Frecuencia absoluta': cuenta_edad,
+        'Frecuencia absoluta acumulada': cuenta_edad.cumsum(),
+        'Frecuencia relativa (%)': round(cuenta_edad / muestra * 100, 1),
+        'Frecuencia relativa acumulada (%)': round((cuenta_edad / muestra * 100).cumsum(), 1)
+    })
+    tabla_edad
+
+EXPLICACIÓN LÍNEA POR LÍNEA:
+- pd.cut(df['EDAD'], bins=10, include_lowest=True, precision=0):
+  Divide el rango de edad en 10 intervalos iguales.
+  * include_lowest=True: Hace que el valor más chico (17 años) quede adentro del
+    primer intervalo. Si no se pone, el valor mínimo podría quedar afuera.
+  * precision=0: Hace que los límites de los intervalos no muestren decimales.
+- observed=True:
+  Se coloca en el groupby para variables categóricas o intervalos creados con
+  cut. Así evitamos las advertencias (warnings) de versiones recientes de pandas.
+- .cumsum():
+  Suma acumulada ("cumulative sum"). Va sumando fila a fila para obtener las
+  frecuencias acumuladas (Fi y Hi).
+
+HISTOGRAMA DE EDAD:
+    categorias_edad = tabla_edad.index
+    f_edad = tabla_edad['Frecuencia absoluta']
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    histograma_edad = ax.bar(categorias_edad.astype(str), f_edad, color='forestgreen', edgecolor='black', width=1)
+
+    ax.set_title('Distribución de estudiantes por intervalos de edad')
+    ax.set_xlabel('Rango de edad (años)')
+    ax.set_ylabel('Cantidad de estudiantes')
+    ax.bar_label(histograma_edad)
+    plt.xticks(rotation=45, ha='right')
+
+    plt.show()
+
+OJO AQUÍ: ¿Por qué pusimos width=1?
+RESPUESTA DEL 7.0:
+"Profe, en un histograma las barras van unidas (ancho = 1) porque los intervalos
+de clase son continuos, a diferencia de un gráfico de barras cualitativo donde
+las barras van separadas."
+
+ESTADÍGRAFOS DE EDAD CALCULADOS:
+- Media: 24,3 años       -> df['EDAD'].mean()
+- Mediana: 22,0 años     -> df['EDAD'].median()
+- Moda: 19 años          -> int(df['EDAD'].mode()[0])
+- Q1 (25%): 20,0 años    -> df['EDAD'].quantile(0.25)
+- Q3 (75%): 26,0 años    -> df['EDAD'].quantile(0.75)
+- IQR: 6,0 años          -> Q3 - Q1
+- Desviación estándar: 6,3 años -> df['EDAD'].std()
+- Varianza: 40,1 años²   -> df['EDAD'].var()
+- CV: 25,9%              -> (Desviación / Media) * 100
+
+PREGUNTA FIJA DEL PROFE: ¿Por qué la media (24,3) es mayor que la mediana (22,0)?
+RESPUESTA DEL 7.0:
+"Profe, porque la distribución de edad tiene ASIMETRÍA POSITIVA (sesgo hacia la
+derecha). La gran masa de estudiantes entra joven entre los 18 y 22 años (de
+hecho la moda es 19 años). Sin embargo, hay un grupo de estudiantes adultos que
+llegan hasta los 68 años. Esos pocos valores altos tiran la media hacia arriba.
+Por eso la mediana (22 años) representa mucho mejor al estudiante típico."
+
+PREGUNTA FIJA DEL PROFE: ¿Qué significa que Q3 sea 26 años?
+RESPUESTA:
+"Significa que el 75% de todos los matriculados de la región tiene 26 años o
+menos, y solo el 25% restante supera esa edad."
+
+PREGUNTA FIJA DEL PROFE: ¿Qué nos dice el IQR de 6 años?
+RESPUESTA:
+"Nos dice que el 50% central de los estudiantes está muy concentrado en un rango
+estrecho de apenas 6 años (entre los 20 y los 26 años)."
+
+
+================================================================================
+BLOQUE 5: VARIABLE CUANTITATIVA - ARANCEL (PESOS)
+================================================================================
+
+CÓDIGO:
+    # Intervalos de arancel
+    df['Intervalos_arancel'] = pd.cut(df['VALOR ARANCEL (PESOS)'], bins=8, include_lowest=True, precision=0)
+    cuenta_arancel = df.groupby('Intervalos_arancel', observed=True).size()
+
+    tabla_arancel = pd.DataFrame({
+        'Frecuencia absoluta': cuenta_arancel,
+        'Frecuencia absoluta acumulada': cuenta_arancel.cumsum(),
+        'Frecuencia relativa (%)': round(cuenta_arancel / muestra * 100, 1),
+        'Frecuencia relativa acumulada (%)': round((cuenta_arancel / muestra * 100).cumsum(), 1)
+    })
+    tabla_arancel
+
+ESTADÍGRAFOS DE ARANCEL:
+- Media: $2.484.899
+- Mediana: $2.200.000
+- Moda: $1.860.000 (o valor modal de mayor frecuencia)
+- Q1 (25%): $1.698.000
+- Q3 (75%): $3.132.000
+- IQR: $1.434.000
+- Desviación estándar: $1.018.454
+- CV: 41,0%
+
+PREGUNTA FIJA DEL PROFE: ¿Qué estadígrafo es mejor para el arancel: la media o la mediana?
+RESPUESTA DEL 7.0:
+"Profe, definitivamente LA MEDIANA ($2.200.000). El arancel tiene una asimetría
+positiva muy marcada, porque existen carreras de salud de alto costo (como
+Medicina u Odontología) que superan los 6 y 7 millones de pesos al año. Esos
+valores extremos jalan el promedio hasta los $2.484.899, distorsionándolo.
+La mediana es una medida robusta frente a datos atípicos y nos indica que la
+mitad de las carreras de la región cuesta $2.200.000 o menos."
+
+PREGUNTA FIJA DEL PROFE: ¿Qué significa que el Coeficiente de Variación (CV) sea 41%?
+RESPUESTA:
+"Como el CV supera el 30%, nos indica que los aranceles tienen una ALTA
+DISPERSIÓN (heterogeneidad). Esto es lógico en educación superior, porque tienes
+carreras técnicas muy baratas de CFT (cerca de 1 a 1,5 millones) conviviendo con
+carreras universitarias largas de 5 a 7 millones."
+
+
+================================================================================
+RESUMEN RÁPIDO PARA MEMORIZAR ANTES DE SALIR A EXPONER:
+================================================================================
+1. Tamaño total: 37.323 estudiantes.
+2. Instituciones: Lideran CRUCH (27,6%) e IP (27,3%). Técnica (CFT+IP) es el 50%.
+3. Género: Mujeres 55,1%, Hombres 44,9% (las mujeres ganan por 10,2 puntos).
+4. CFT es la única institución con mayoría masculina (53,5%).
+5. Edad: Media = 24,3 / Mediana = 22,0 / Moda = 19 / IQR = 6 años.
+   (Asimetría positiva por alumnos adultos de hasta 68 años).
+6. Arancel: Media = $2.484.899 / Mediana = $2.200.000 / CV = 41%.
+   (Se prefiere la mediana porque es robusta frente a carreras ultra caras).
+
+¡Con esto dominas el Ítem 1 completo y respondes cualquier pregunta con base
+estadística real!
+================================================================================
